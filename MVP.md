@@ -8,7 +8,7 @@ An offline-first TypeScript code runner with terminal output, built with Vite, R
 
 ### 0.1 Create Project
 
-- [ ] Initialize Vite + React + TypeScript
+- [x] Initialize Vite + React + TypeScript
 - [ ] Verify Web Worker support via `new URL(worker, import.meta.url)`
 
 **Done when:**
