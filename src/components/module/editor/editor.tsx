@@ -1,6 +1,5 @@
 import Editor, { type Monaco } from "@monaco-editor/react";
 import { useCodeRunner } from "./code-runner.context";
-import { RunSlot } from "./run";
 
 const TextEditor = () => {
   const { code, setCode } = useCodeRunner();
@@ -39,7 +38,7 @@ const TextEditor = () => {
     });
   }
   return (
-    <div className="flex h-[calc(100vh-4rem)] w-full flex-col overflow-hidden rounded-xl border border-border bg-background">
+    <div className="flex h-[calc(100vh-7.3rem)] w-full flex-col overflow-hidden rounded-md border border-border bg-muted/30">
       <div className="flex items-center gap-2 border-b border-border px-4 py-2">
         <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
@@ -48,7 +47,7 @@ const TextEditor = () => {
       </div>
       <div className="relative border flex-1 py-2 h-full bg-black">
         <Editor
-          height="42rem"
+          height="38rem"
           defaultLanguage={"typescript"}
           onChange={handleEditorChange}
           beforeMount={handleEditorWillMount}
@@ -78,9 +77,6 @@ const TextEditor = () => {
             },
           }}
         />
-      </div>
-      <div className=" p-2">
-        <RunSlot />
       </div>
     </div>
   );

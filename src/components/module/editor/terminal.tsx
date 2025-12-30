@@ -43,7 +43,7 @@ export function TerminalSlot() {
   return (
     <div
       ref={containerRef}
-      className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-background"
+      className="flex h-[calc(100vh-7.3rem)] w-full flex-col overflow-hidden rounded-md border border-border bg-muted/30"
     >
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-border px-4 py-2">
