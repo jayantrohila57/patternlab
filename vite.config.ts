@@ -6,7 +6,16 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), VitePWA({ registerType: "autoUpdate" }), tailwindcss()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: "autoUpdate",
+      workbox: {
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+      },
+    }),
+    tailwindcss(),
+  ],
   worker: {
     format: "es",
   },
@@ -16,9 +25,14 @@ export default defineConfig({
       output: {
         manualChunks: {
           typescript: ["typescript"],
+          workers: [
+            "src/worker/runner.worker.ts",
+            "src/worker/solution.worker.ts",
+          ],
         },
       },
     },
+    chunkSizeWarningLimit: 1000,
   },
   resolve: {
     alias: {

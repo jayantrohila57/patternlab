@@ -11,11 +11,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 import { useMemo, useState } from "react";
+import { useSidebar } from "@/components/shared/layout/use-sidebar";
+import { usePatternActions } from "@/components/module/editor/pattern-runner.context";
 
 import { patterns } from "@/components/formula/patterns";
 import { generatePattern } from "@/components/formula/formula";
 import type { PatternData } from "@/components/formula/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { showToast } from "@/lib/toast-utils";
 
 const isNonNullable = <T,>(value: T): value is NonNullable<T> => value != null;
 
@@ -84,11 +87,18 @@ export function List() {
   }, [category, difficulty, group, patternType, subCategory]);
 
   const clearFilters = () => {
-    setCategory("");
-    setSubCategory("");
-    setPatternType("");
-    setDifficulty("");
-    setGroup("");
+    try {
+      console.log("🧹 Clearing all filters");
+      setCategory("");
+      setSubCategory("");
+      setPatternType("");
+      setDifficulty("");
+      setGroup("");
+      showToast.info("Filters cleared");
+    } catch (error) {
+      console.error("❌ Failed to clear filters", error);
+      showToast.error("Failed to clear filters", error);
+    }
   };
 
   return (
@@ -204,7 +214,7 @@ export function List() {
         </div>
       </div>
       <ScrollArea className="h-full overflow-auto border pr-2">
-        <div className="grid grid-cols-6 p-2 gap-2">
+        <div className="grid grid-cols-5 p-2 gap-2">
           {filteredPatterns.map((pattern) => (
             <ListItem key={pattern.id} pattern={pattern} />
           ))}
@@ -215,10 +225,34 @@ export function List() {
 }
 
 function ListItem({ pattern }: { pattern: PatternData }) {
-  const preview = generatePattern(pattern).join("\n");
+  const preview = useMemo(() => {
+    try {
+      return generatePattern(pattern).join("\n");
+    } catch (error) {
+      console.error("❌ Failed to generate pattern preview", error);
+      return "Preview unavailable";
+    }
+  }, [pattern]);
+
+  const { setActive } = useSidebar();
+  const { selectPattern } = usePatternActions();
+
+  const handlePatternSelect = () => {
+    try {
+      console.log("🎯 Selecting pattern from list:", pattern.name);
+      selectPattern(pattern);
+      setActive("workspace");
+    } catch (error) {
+      console.error("❌ Failed to select pattern from list", error);
+      showToast.error("Failed to select pattern", error);
+    }
+  };
 
   return (
-    <Card  className="w-full h-full gap-1 p-1">
+    <Card
+      className="w-full h-full gap-1 p-1 cursor-pointer"
+      onClick={handlePatternSelect}
+    >
       <CardHeader className="space-y-1 p-1">
         <CardTitle className="line-clamp-2 text-xs leading-tight">
           {pattern.name}

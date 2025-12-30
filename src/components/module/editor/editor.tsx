@@ -1,10 +1,25 @@
 import Editor, { type Monaco } from "@monaco-editor/react";
 import { useCodeRunner } from "./code-runner.context";
+import { usePatternActions, usePatternState } from "./pattern-runner.context";
+import { useSidebar } from "@/components/shared/layout/use-sidebar";
+import { Terminal } from "../terminal/terminal";
 
 const TextEditor = () => {
+  const { state: sidebarState } = useSidebar();
+  const inWorkspace = String(sidebarState.activeItemId) === String("workspace");
+
   const { code, setCode } = useCodeRunner();
+  const patternState = usePatternState();
+  const patternActions = usePatternActions();
+
+  const value = inWorkspace ? patternState.userCode : code;
   function handleEditorChange(value: string | undefined) {
-    setCode(value as string);
+    const next = value ?? "";
+    if (inWorkspace) {
+      patternActions.updateUserCode(next);
+    } else {
+      setCode(next);
+    }
   }
   function handleEditorWillMount(monaco: Monaco) {
     monaco.editor.defineTheme("myCustomTheme", {
@@ -47,12 +62,12 @@ const TextEditor = () => {
       </div>
       <div className="relative border flex-1 py-2 h-full bg-black">
         <Editor
-          height="38rem"
+          height="28rem"
           defaultLanguage={"typescript"}
           onChange={handleEditorChange}
           beforeMount={handleEditorWillMount}
           theme="myCustomTheme"
-          value={code}
+          value={value}
           options={{
             autoClosingBrackets: "never",
             autoClosingQuotes: "never",
@@ -77,6 +92,9 @@ const TextEditor = () => {
             },
           }}
         />
+      </div>
+      <div className="relative border flex-1 h-full bg-black">
+        <Terminal />
       </div>
     </div>
   );

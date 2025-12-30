@@ -24,6 +24,7 @@ const ctx = self as unknown as DedicatedWorkerGlobalScope;
 let lastRunId: string | null = null;
 
 const handleMessage = async (e: MessageEvent<WorkerRequestPayload>) => {
+  console.log("📨 Worker received message:", e.data);
   const logs: string[] = [];
   const runId = e.data.runId;
   lastRunId = runId;
@@ -74,20 +75,25 @@ const handleMessage = async (e: MessageEvent<WorkerRequestPayload>) => {
       },
     });
 
+    // Inside the try block of your handleMessage
     const wrappedSource = `"use strict";\nreturn (async () => {\n${result.outputText}\n})();`;
+
     const execute = new Function("console", "self", wrappedSource) as (
       console: typeof fakeConsole,
       self: DedicatedWorkerGlobalScope
-    ) => Promise<unknown>;
+    ) => Promise<void>;
 
+    // Await the execution so the success message doesn't fire too early
     await execute(fakeConsole, ctx);
 
+    console.log("✅ Worker execution completed, posting success message");
     ctx.postMessage({
       runId,
       logs,
       success: true,
     } satisfies WorkerResponsePayload);
   } catch (err) {
+    console.log("❌ Worker execution failed:", err);
     const error = err instanceof Error ? err : new Error(String(err));
     fakeConsole.error(error);
     ctx.postMessage({
